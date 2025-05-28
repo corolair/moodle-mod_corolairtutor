@@ -1,5 +1,2 @@
-mod_corolair_quiz*
 *.zip
-corolair_quiz/*
-quiz/*
-corolairquiz/*
+mod_corolairtutor/*

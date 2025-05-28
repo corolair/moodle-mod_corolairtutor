@@ -1,138 +1,56 @@
 <?php
-require(__DIR__ . '/../../config.php');
-$id = required_param('id', PARAM_INT); // Course module ID
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-$cm = get_coursemodule_from_id('corolairquiz', $id, 0, false, MUST_EXIST);
+/**
+ * Activity view page for the mod_corolairtutor plugin.
+ *
+ * @package    mod_corolairtutor
+ * @copyright  2024 Corolair
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+require(__DIR__ . '/../../config.php');
+$id = required_param('id', PARAM_INT);
+$cm = get_coursemodule_from_id('corolairtutor', $id, 0, false, MUST_EXIST);
 $course = get_course($cm->course);
 $context = context_module::instance($cm->id);
-
 require_login($course, true, $cm);
-require_capability('mod/corolairquiz:view', $context);
-
 echo $OUTPUT->header();
-if (is_dir($CFG->dirroot . '/local/corolair')) {
-    // echo "Local Corolair plugin is installed.";
-    // You can include or call local_corolair functions here.
-} else {
-    echo "Local Corolair plugin is NOT installed.";
-    $output = $PAGE->get_renderer('mod_corolairquiz');
-        echo $output->render_local_plugin_not_installed();
+if (!is_dir($CFG->dirroot . '/local/corolair')) {
+    $output = $PAGE->get_renderer('mod_corolairtutor');
+    echo $output->render_local_plugin_not_installed();
     echo $OUTPUT->footer();
     return;
 }
-
-
-
-
-
-$sitename = $SITE->fullname;
-$moodlerooturl = $CFG->wwwroot;
-$useremail = $USER->email;
-$userfirstname = $USER->firstname;
-$userlastname = $USER->lastname;
-$enablewebserviceconfigrecord = $DB->get_record('config', ['name' => 'enablewebservices']);
-$iswebserviceenabled = false;
-if ($enablewebserviceconfigrecord && $enablewebserviceconfigrecord->value == 1) {
-    $iswebserviceenabled = true;
-}
-$webserviceprotocols = $DB->get_record('config', ['name' => 'webserviceprotocols']);
-$isrestprotocolenabled = false;
-if ($webserviceprotocols && strpos($webserviceprotocols->value, 'rest') !== false) {
-    $isrestprotocolenabled = true;
-}
-$existingservice = $DB->get_record('external_services', ['shortname' => 'corolair_rest']);
-$iscorolairserviceexist = false;
-$istokenexist = false;
-$tokenvalue = '';
-if ($existingservice) {
-    $iscorolairserviceexist = true;
-    $token = $DB->get_record('external_tokens', ['externalserviceid' => $existingservice->id]);
-    if ($token) {
-        $istokenexist = true;
-        $tokenvalue = $token->token;
-    }
-}
-
-$apikey = get_config('local_corolair', 'apikey');
-if (empty($apikey) ||
-    strpos($apikey, 'No Corolair Api Key') === 0 ||
-    strpos($apikey, 'Aucune Clé API Corolair') === 0 ||
-    strpos($apikey, 'No hay clave API de Corolair') === 0
-    ) 
-    {   
-        $output = $PAGE->get_renderer('local_corolair');
-        echo $output->render_installation_troubleshoot(
-        $moodlerooturl,
-        $sitename,
-        $iswebserviceenabled,
-        $isrestprotocolenabled,
-        $iscorolairserviceexist,
-        $istokenexist,
-        $useremail,
-        $userfirstname,
-        $userlastname,
-        $tokenvalue
-    );
-    echo $OUTPUT->footer();
-    return;
-    }
-$createtutorwithcapability = get_config('local_corolair', 'createtutorwithcapability') === 'true';
-$postdata = json_encode([
-    'email' => $USER->email,
-    'apiKey' => $apikey,
-    'firstname' => $USER->firstname,
-    'lastname' => $USER->lastname,
-    'moodleUserId' => $USER->id,
-    'createTutorWithCapability' => $createtutorwithcapability,
-]);
-$curl = new curl();
-$options = [
-    "CURLOPT_RETURNTRANSFER" => true,
-    'CURLOPT_HTTPHEADER' => [
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($postdata),
-    ],
-];
-$authurl = "https://services.corolair.dev/moodle-integration/auth";
-$response = $curl->post($authurl, $postdata , $options);
-$errno = $curl->get_errno();
-// Handle the response.
-if ($response === false || $errno !== 0) {
-    $output = $PAGE->get_renderer('local_corolair');
-    echo $output->render_installation_troubleshoot(
-        $moodlerooturl,
-        $sitename,
-        $iswebserviceenabled,
-        $isrestprotocolenabled,
-        $iscorolairserviceexist,
-        $istokenexist,
-        $useremail,
-        $userfirstname,
-        $userlastname,
-        $tokenvalue
-    );
-    echo $OUTPUT->footer();
-    return;
-}
-$jsonresponse = json_decode($response, true);
-// Validate the response.
-if (!isset($jsonresponse['userId'])) {
-    throw new moodle_exception('errortoken', 'local_corolair');
-}
-$userid = $jsonresponse['userId'];
-
-// Use the mod_corolairquiz renderer
-$output = $PAGE->get_renderer('mod_corolairquiz');
-
+require_capability('mod/corolairtutor:view', $context);
+require_capability('local/corolair:createtutor', $context);
 $courseid = $course->id;
-
-if(empty($courseid) || $courseid === '1') {
-        echo $output->render_dashboard($userid);
-
-}else {
-    $provider = 'moodle'; 
-    echo $output->render_trainer($userid, $provider, $courseid);
-
+if (empty($courseid) || $courseid === '1') {
+        redirect(
+        new moodle_url("/local/corolair/trainer.php"),
+        '',
+        0
+    );
+} else {
+    redirect(
+        new moodle_url("/local/corolair/trainer.php", [
+            'corolairsourcecourse' => $courseid,
+            'corolairplugin' => 'tutorActivity',
+        ]),
+        '',
+        0
+    );
 }
-echo $OUTPUT->footer();
-

@@ -15,20 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the Corolair plugin.
+ * Language strings for the Corolair Tutor Plugin.
  *
- * This file defines the version and other metadata for the "mod_corolairtutor" plugin.
- * It ensures compatibility and proper registration with Moodle.
- *
- * @package    mod_corolairtutor
+ * @package   mod_corolairtutor
  * @copyright  2024 Corolair
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->component = 'mod_corolairtutor';
-$plugin->version = 2025052800;
-$plugin->requires = 2020110900;
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '1.0';
+$string['pluginname'] = 'Corolair Tuteur';
+$string['modulename'] = 'Corolair Tuteur';
+$string['modulenameplural'] = 'Tuteurs Corolair';
+$string['corolairtutor:view'] = 'Accéder au Tuteur Corolair';
+$string['corolairtutor:addinstance'] = 'Ajouter un nouveau tuteur Corolair au cours';
+$string['noinstances'] = 'Il n\'y a aucun tuteur Corolair dans ce cours.';
+$string['defaultactivityname'] = 'Corolair Tuteur';
+$string['name'] = 'Nom';
