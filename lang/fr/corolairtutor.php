@@ -30,3 +30,4 @@ $string['corolairtutor:addinstance'] = 'Ajouter un nouveau tuteur Corolair au co
 $string['noinstances'] = 'Il n\'y a aucun tuteur Corolair dans ce cours.';
 $string['defaultactivityname'] = 'Corolair Tuteur';
 $string['name'] = 'Nom';
+$string['onlyoneinstanceallowed'] = 'Une seule instance du Tuteur Corolair est autorisée par cours.';

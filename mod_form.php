@@ -71,4 +71,30 @@ class mod_corolairtutor_mod_form extends moodleform_mod {
             $defaultvalues['visible'] = 0;
         }
     }
+
+    /**
+     * Validates the form data.
+     *
+     * Prevents adding more than one instance of the module per course.
+     *
+     * @param array $data The submitted form data.
+     * @param array $files The submitted files.
+     * @return array An array of error messages, indexed by field name.
+     */
+    public function validation($data, $files) {
+        global $DB;
+        $errors = parent::validation($data, $files);
+        // Check if another instance already exists in this course.
+        if (!empty($data['course'])) {
+            $courseid = $data['course'];
+            // Allow editing existing instance.
+            if (empty($this->current->id)) {
+                $exists = $DB->record_exists('corolairtutor', ['course' => $courseid]);
+                if ($exists) {
+                    $errors['name'] = get_string('onlyoneinstanceallowed', 'mod_corolairtutor');
+                }
+            }
+        }
+        return $errors;
+    }
 }
