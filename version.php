@@ -28,7 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_corolairtutor';
-$plugin->version = 2025052800;
+$plugin->version = 2025060200;
 $plugin->requires = 2020110900;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = '1.0';

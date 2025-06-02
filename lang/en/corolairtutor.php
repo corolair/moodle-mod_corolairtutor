@@ -30,3 +30,4 @@ $string['corolairtutor:addinstance'] = 'Add a new corolair tutor to a course';
 $string['noinstances'] = 'There are no corolair tutors in this course.';
 $string['defaultactivityname'] = 'Corolair Tutor';
 $string['name'] = 'Name';
+$string['onlyoneinstanceallowed'] = 'Only one instance of Corolair Tutor is allowed per course.';
